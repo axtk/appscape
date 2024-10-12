@@ -14,8 +14,8 @@ export function renderStatus(req: Request, {statusCode}: Response) {
         '<meta name="viewport" content="width=device-width"/>' +
         `<title>${statusText}</title></head>` +
         '<body><main style="text-align: center;">' +
-        `<h1>${statusText}</h1><hr/>` +
+        `<h1>${statusText}</h1><hr/><p>` +
         (id ? `<code>ID: ${id}</code><br/>` : '') +
         `<code>${date}</code>` +
-        '</main></body></html>';
+        '</p></main></body></html>';
 }
