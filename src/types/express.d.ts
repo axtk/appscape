@@ -9,6 +9,7 @@ declare global {
         }
         interface Application {
             events?: EventEmitter;
+            renderStatus?: (statusCode: number, payload?: unknown) => unknown;
         }
     }
 }

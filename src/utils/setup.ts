@@ -2,10 +2,11 @@ import express from 'express';
 import {join} from 'node:path';
 import {start} from '../middleware/start';
 import {requestEvents} from '../middleware/requestEvents';
-import {emitLog} from '../utils/emitLog';
-import {init} from '../utils/init';
 import {log} from '../lib/logger/log';
 import {LogEventPayload} from '../types/LogEventPayload';
+import {init} from './init';
+import {emitLog} from './emitLog';
+import {renderStatus} from './renderStatus';
 
 export function setup() {
     let app = init(express());
@@ -17,6 +18,9 @@ export function setup() {
         app.events?.on('log', ({message, ...payload}: LogEventPayload) => {
             log(message, payload);
         });
+
+    if (!app.renderStatus)
+        app.renderStatus = renderStatus;
 
     app.disable('x-powered-by');
     app.use(start());

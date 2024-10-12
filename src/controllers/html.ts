@@ -1,4 +1,3 @@
-import {STATUS_CODES} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import type {Request, Response} from 'express';
 import type {Controller} from '../types/Controller';
@@ -33,7 +32,10 @@ export const html: Controller<HTMLParams | void> = ({
         });
 
         if (!path) {
-            res.status(404).send(STATUS_CODES[404]);
+            res.status(404).send(
+                req.app.renderStatus?.(404, 'unknown_html'),
+            );
+
             return;
         }
 

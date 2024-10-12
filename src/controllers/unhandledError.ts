@@ -1,4 +1,3 @@
-import {STATUS_CODES} from 'node:http';
 import type {ErrorController} from '../types/ErrorController';
 import {emitLog} from '../utils/emitLog';
 
@@ -10,5 +9,7 @@ export const unhandledError: ErrorController = () => (err, req, res) => {
         res,
     });
 
-    res.status(500).send(STATUS_CODES[500]);
+    res.status(500).send(
+        req.app.renderStatus?.(500, 'unhandled_error'),
+    );
 };
