@@ -1,5 +1,6 @@
 import {STATUS_CODES} from 'node:http';
 import {readFile} from 'node:fs/promises';
+import type {Request, Response} from 'express';
 import type {Controller} from '../types/Controller';
 import {getFilePath} from '../utils/getFilePath';
 import {emitLog} from '../utils/emitLog';
@@ -7,7 +8,7 @@ import {emitLog} from '../utils/emitLog';
 export type HTMLParams = {
     dir?: string;
     name?: string;
-    transform?: (content: string) => string;
+    transform?: (req: Request, res: Response, content: string) => string | Promise<string>;
     supportedLocales?: string[];
 };
 
@@ -39,7 +40,7 @@ export const html: Controller<HTMLParams | void> = ({
         let content = (await readFile(path)).toString();
 
         if (transform)
-            content = transform(content);
+            content = await transform(req, res, content);
 
         let nonce = req.ctx?.nonce;
 
