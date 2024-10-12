@@ -33,7 +33,7 @@ export const html: Controller<HTMLParams | void> = ({
 
         if (!path) {
             res.status(404).send(
-                req.app.renderStatus?.(404, 'unknown_html'),
+                req.app.renderStatus?.(req, res),
             );
 
             return;

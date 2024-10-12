@@ -10,6 +10,6 @@ export const unhandledError: ErrorController = () => (err, req, res) => {
     });
 
     res.status(500).send(
-        req.app.renderStatus?.(500, 'unhandled_error'),
+        req.app.renderStatus?.(req, res, 'unhandled_error'),
     );
 };

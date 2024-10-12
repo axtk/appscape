@@ -9,6 +9,6 @@ export const unhandledRoute: Controller = () => (req, res) => {
     });
 
     res.status(404).send(
-        req.app.renderStatus?.(404, 'unhandled_route'),
+        req.app.renderStatus?.(req, res, 'unhandled_route'),
     );
 };
