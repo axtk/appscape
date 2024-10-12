@@ -16,12 +16,12 @@ export type LangParams = {
     langCookieOptions?: CookieOptions;
 };
 
-export const lang: Middleware<LangParams> = ({
+export const lang: Middleware<LangParams | void> = ({
     supportedLocales = [],
     shouldSetLangCookie = true,
     shouldRedirect = true,
     langCookieOptions = defaultLangCookieOptions,
-}) => {
+} = {}) => {
     let langSet = new Set(supportedLocales.map(toLanguage));
     let localeSet = new Set(supportedLocales);
 
