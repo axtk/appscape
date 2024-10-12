@@ -2,11 +2,14 @@ import {STATUS_CODES} from 'node:http';
 import {Request, Response} from 'express';
 
 export function renderStatus(req: Request, {statusCode}: Response) {
-    let content = `<h1>${statusCode} ${STATUS_CODES[statusCode]}</h1>`;
-    let id = req.ctx?.id;
+    let statusText = `${statusCode} ${STATUS_CODES[statusCode]}`;
 
-    if (id)
-        content += `\n<pre>ID: ${id}</pre>`;
-
-    return content;
+    return '<!DOCTYPE html>' +
+        '<html><head><meta charset="utf-8"/>' +
+        '<meta name="viewport" content="width=device-width"/>' +
+        `<title>${statusText}</title></head>` +
+        '<body><main style="text-align: center;">' +
+        `<h1>${statusText}</h1><hr/>` +
+        `<pre>ID: ${req.ctx?.id ?? 'None'}</pre>` +
+        '</main></body></html>';
 }
