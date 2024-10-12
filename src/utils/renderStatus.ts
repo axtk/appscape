@@ -2,7 +2,12 @@ import {STATUS_CODES} from 'node:http';
 import {Request, Response} from 'express';
 
 export function renderStatus(req: Request, {statusCode}: Response) {
+    let id = req.ctx?.id;
     let statusText = `${statusCode} ${STATUS_CODES[statusCode]}`;
+    let date = (new Date())
+        .toISOString()
+        .replace(/T/, ' ')
+        .replace(/Z$/, '') + ' UTC';
 
     return '<!DOCTYPE html>' +
         '<html><head><meta charset="utf-8"/>' +
@@ -10,6 +15,7 @@ export function renderStatus(req: Request, {statusCode}: Response) {
         `<title>${statusText}</title></head>` +
         '<body><main style="text-align: center;">' +
         `<h1>${statusText}</h1><hr/>` +
-        `<pre>ID: ${req.ctx?.id ?? 'None'}</pre>` +
+        (id ? `<code>ID: ${id}</code><br/>` : '') +
+        `<code>${date}</code>` +
         '</main></body></html>';
 }
