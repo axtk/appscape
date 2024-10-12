@@ -1,6 +1,7 @@
 import express from 'express';
 import {join} from 'node:path';
 import {start} from '../middleware/start';
+import {requestEvents} from '../middleware/requestEvents';
 import {emitLog} from '../utils/emitLog';
 import {init} from '../utils/init';
 import {log} from '../lib/logger/log';
@@ -19,6 +20,7 @@ export function setup() {
 
     app.disable('x-powered-by');
     app.use(start());
+    app.use(requestEvents());
     app.use(express.static(join(process.cwd(), './res')));
 
     app.listen(port, host, () => {

@@ -6,6 +6,7 @@ export * from './src/lib/lang/toLanguage';
 export * from './src/lib/logger/log';
 export * from './src/lib/logger/LogOptions';
 export * from './src/middleware/lang';
+export * from './src/middleware/requestEvents';
 export * from './src/middleware/secHeaders';
 export * from './src/middleware/start';
 export * from './src/middleware/trimQueryParams';
