@@ -1,3 +1,4 @@
+export * from './src/controllers/html';
 export * from './src/controllers/unhandledError';
 export * from './src/controllers/unhandledRoute';
 export * from './src/lib/lang/getEffectiveLocale';
@@ -18,6 +19,7 @@ export * from './src/types/Middleware';
 export * from './src/types/MiddlewareSet';
 export * from './src/types/ReqCtx';
 export * from './src/utils/emitLog';
+export * from './src/utils/getFilePath';
 export * from './src/utils/init';
 export * from './src/utils/serializeState';
 export * from './src/utils/setup';
