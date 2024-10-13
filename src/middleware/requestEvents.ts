@@ -1,10 +1,6 @@
-import {STATUS_CODES} from 'node:http';
 import type {Middleware} from '../types/Middleware';
 import {emitLog} from '../utils/emitLog';
-
-function getStatusMessage(prefix: string, statusCode: number) {
-    return `${prefix} - [${statusCode}] ${STATUS_CODES[statusCode]}`;
-}
+import {getStatusMessage} from '../utils/getStatusMessage';
 
 export const requestEvents: Middleware = () => (req, res, next) => {
     let finished = false;
