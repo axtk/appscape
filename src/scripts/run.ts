@@ -12,7 +12,7 @@ async function run() {
     for (let arg of args) {
         switch (arg) {
             case '--build':
-                await build();
+                await build({silent: args.includes('--silent')});
                 break;
             case '--clean':
                 await clean();

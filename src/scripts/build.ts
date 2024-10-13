@@ -155,10 +155,15 @@ async function buildEntryIndex() {
     return writeFile(indexPath, nextContents);
 }
 
-export async function build() {
+export type BuildParams = {
+    silent?: boolean;
+};
+
+export async function build({silent}: BuildParams | void = {}) {
+    let log = silent ? (() => {}) : console.log;
     let startTime = Date.now();
 
-    console.log('Build started');
+    log('Build started');
 
     await setup();
     await buildEntryIndex();
@@ -168,5 +173,5 @@ export async function build() {
         buildClient(),
     ]);
 
-    console.log(`Build completed (build time: ${formatDuration(Date.now() - startTime)})`);
+    log(`Build completed (build time: ${formatDuration(Date.now() - startTime)})`);
 }
