@@ -8,8 +8,9 @@ export function servePipeableStream(req: Request, res: Response) {
         let statusCode = error ? 500 : 200;
 
         emitLog(req.app, getStatusMessage('Stream', statusCode), {
-            req,
             level: error ? 'error' : undefined,
+            req,
+            res,
             data: error,
         });
 
