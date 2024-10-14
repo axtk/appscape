@@ -14,15 +14,21 @@ type EntryPoint = {
 };
 
 async function getEntries() {
-    let list = await readdir(join(cwd, 'src/entries'));
+    try {
+        let list = await readdir(join(cwd, 'src/entries'));
 
-    let dirs = await Promise.all(
-        list.map(async name => {
-            return await lstat(join(cwd, 'src/entries', name)) ? name : undefined;
-        }),
-    );
+        let dirs = await Promise.all(
+            list.map(async name => {
+                let itemStat = await lstat(join(cwd, 'src/entries', name));
+                return itemStat.isDirectory() ? name : undefined;
+            }),
+        );
 
-    return dirs.filter(dir => dir !== undefined);
+        return dirs.filter(dir => dir !== undefined);
+    }
+    catch {
+        return [];
+    }
 }
 
 async function getFirstAvailable(dirPath: string, name: string | string[]) {
@@ -118,7 +124,7 @@ async function buildClient() {
 }
 
 async function buildServerCSS() {
-    let entryPoints = await getServerEntryPoints()
+    let entryPoints = await getServerEntryPoints();
 
     await esbuild.build({
         entryPoints,
@@ -168,19 +174,26 @@ async function buildEntryIndex() {
     let path = 'src/main/entries.ts';
     let entryPoints = await getServerEntryPoints();
 
-    let contents = '// Populated automatically during the build phase\n' +
-        `${entryPoints.map(toEntryImport).join('\n')}\n\n` +
-        `export const entries = [\n${entryPoints.map(toEntryExportItem).join('\n')}\n];\n`;
+    let content = '// Populated automatically during the build phase\n';
+
+    if (entryPoints.length === 0)
+        content += 'export const entries = [];';
+    else {
+        let importList = entryPoints.map(toEntryImport).join('\n');
+        let entryList = entryPoints.map(toEntryExportItem).join('\n');
+
+        content += `${importList}\n\nexport const entries = [\n${entryList}\n];\n`;
+    }
 
     try {
-        let prevContents = (await readFile(path)).toString();
+        let prevContent = (await readFile(path)).toString();
 
-        if (contents === prevContents)
+        if (content === prevContent)
             return;
     }
     catch {}
 
-    return writeFile(path, contents);
+    return writeFile(path, content);
 }
 
 export type BuildParams = {
