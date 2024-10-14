@@ -84,9 +84,9 @@ async function setup() {
 
 async function buildServer() {
     await esbuild.build({
-        entryPoints: ['src/server/app.ts'],
+        entryPoints: ['src/app/index.ts'],
         bundle: true,
-        outdir: 'dist/server',
+        outdir: 'dist/app',
         platform: 'node',
         legalComments: dev ? undefined : 'none',
         ...commonBuildOptions,
