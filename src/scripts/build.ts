@@ -116,13 +116,17 @@ async function buildServerCSS() {
         ...commonBuildOptions,
     });
 
+    let files = readdirSync('dist/entries')
+        .filter(name => name.endsWith('.css'));
+
+    if (files.length === 0)
+        return;
+
     if (!existsSync('res/-'))
         await mkdir('res/-');
 
     await Promise.all(
-        readdirSync('dist/entries')
-            .filter(name => name.endsWith('.css'))
-            .map(name => copyFile(`dist/entries/${name}`, `res/-/${name}`)),
+        files.map(name => copyFile(`dist/entries/${name}`, `res/-/${name}`)),
     );
 }
 
