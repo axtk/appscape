@@ -1,5 +1,5 @@
 import {access, copyFile, lstat, mkdir, readdir, readFile, rm, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
+import {join, posix} from 'node:path';
 import esbuild, {type BuildOptions} from 'esbuild';
 import {formatDuration} from 'dtfm';
 
@@ -86,7 +86,7 @@ const commonBuildOptions: Partial<BuildOptions> = {
 };
 
 async function setup() {
-    let dirs = ['res/-', 'dist/server', 'dist/entries'];
+    let dirs = ['res/-', 'dist/main', 'dist/entries'];
 
     await Promise.all(
         dirs.map(dir => rm(dir, {force: true, recursive: true})),
@@ -95,11 +95,10 @@ async function setup() {
 
 async function buildServer() {
     await esbuild.build({
-        entryPoints: ['src/app/index.ts'],
+        entryPoints: ['src/main/index.ts'],
         bundle: true,
-        outdir: 'dist/app',
+        outdir: 'dist/main',
         platform: 'node',
-        legalComments: dev ? undefined : 'none',
         ...commonBuildOptions,
     });
 }
@@ -114,7 +113,6 @@ async function buildClient() {
         format: 'esm',
         outdir: 'res/-',
         minify: !dev,
-        legalComments: dev ? undefined : 'none',
         ...commonBuildOptions,
     });
 }
@@ -127,7 +125,6 @@ async function buildServerCSS() {
         bundle: true,
         outdir: 'dist/entries',
         platform: 'node',
-        legalComments: dev ? undefined : 'none',
         ...commonBuildOptions,
     });
 
@@ -155,29 +152,33 @@ function toCamelCase(s: string) {
         .replace(/[\s_-](\w)/g, (_, c) => c.toUpperCase());
 }
 
-function toEntryImport(name: string) {
-    return `import {router as ${toCamelCase(name)}} from '~/src/entries/${name}/server';`;
+function toEntryImport({in: path, out: name}: EntryPoint) {
+    let importPath = posix.relative(cwd, path).replace(/(\/index)?\.[jt]sx?$/, '');
+
+    return `import {server as ${toCamelCase(name)}} from '~/${importPath}';`;
 }
 
-function toEntryExportItem(name: string) {
+function toEntryExportItem({out: name}: EntryPoint) {
     return `    ${toCamelCase(name)},`;
 }
 
 async function buildEntryIndex() {
-    let indexPath = 'src/entries/index.ts';
-    let contents = (await readFile(indexPath)).toString();
+    let path = 'src/main/entries.ts';
+    let entryPoints = await getServerEntryPoints();
 
-    let entries = await getEntries();
-    let publicEntries = entries.filter(name => !name.startsWith('_'));
+    let contents = '// Populated automatically during the build phase\n' +
+        `${entryPoints.map(toEntryImport).join('\n')}\n\n` +
+        `export const entries = [\n${entryPoints.map(toEntryExportItem).join('\n')}\n];\n`;
 
-    let nextContents = '// Generated automatically during the build phase\n' +
-        `${publicEntries.map(toEntryImport).join('\n')}\n\n` +
-        `export const routers = [\n${publicEntries.map(toEntryExportItem).join('\n')}\n];\n`;
+    try {
+        let prevContents = (await readFile(path)).toString();
 
-    if (nextContents === contents)
-        return;
+        if (contents === prevContents)
+            return;
+    }
+    catch {}
 
-    return writeFile(indexPath, nextContents);
+    return writeFile(path, contents);
 }
 
 export type BuildParams = {
