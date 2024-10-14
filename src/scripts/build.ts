@@ -1,5 +1,5 @@
 import {access, copyFile, lstat, mkdir, readdir, readFile, rm, writeFile} from 'node:fs/promises';
-import {join, posix} from 'node:path';
+import {join, relative, posix, sep} from 'node:path';
 import esbuild, {type BuildOptions} from 'esbuild';
 import {formatDuration} from 'dtfm';
 
@@ -153,7 +153,9 @@ function toCamelCase(s: string) {
 }
 
 function toEntryImport({in: path, out: name}: EntryPoint) {
-    let importPath = posix.relative(cwd, path).replace(/(\/index)?\.[jt]sx?$/, '');
+    let importPath = posix.join(
+        ...relative(cwd, path).replace(/(\/index)?\.[jt]sx?$/, '').split(sep),
+    );
 
     return `import {server as ${toCamelCase(name)}} from '~/${importPath}';`;
 }
