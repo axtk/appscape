@@ -1,5 +1,4 @@
-import {existsSync, lstatSync, readdirSync} from 'node:fs';
-import {copyFile, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {access, copyFile, lstat, mkdir, readdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import esbuild, {type BuildOptions} from 'esbuild';
 import {formatDuration} from 'dtfm';
@@ -14,53 +13,65 @@ type EntryPoint = {
     out: string;
 };
 
-let entries = readdirSync(join(cwd, 'src/entries'))
-    .filter(name => lstatSync(join(cwd, 'src/entries', name)).isDirectory());
+async function getEntries() {
+    let list = await readdir(join(cwd, 'src/entries'));
 
-function getFirstAvailable(dirPath: string, name: string | string[]) {
+    let dirs = await Promise.all(
+        list.map(async name => {
+            return await lstat(join(cwd, 'src/entries', name)) ? name : undefined;
+        }),
+    );
+
+    return dirs.filter(dir => dir !== undefined);
+}
+
+async function getFirstAvailable(dirPath: string, name: string | string[]) {
     let names = Array.isArray(name) ? name : [name];
 
     for (let fileName of names) {
         for (let ext of entryExtensions) {
             let path = join(cwd, dirPath, `${fileName}.${ext}`);
 
-            if (existsSync(path))
+            try {
+                await access(path);
                 return path;
+            }
+            catch {}
         }
     }
 }
 
-function getClientEntryPoints() {
-    return entries.reduce<EntryPoint[]>((entryPoints, entryName) => {
-        let path = getFirstAvailable(`src/entries/${entryName}`, [
-            'index',
-            'client',
-            'csr',
-            'client/index',
-            'csr/index',
-        ]);
+async function getEntryPoints(name: string | string[]): Promise<EntryPoint[]> {
+    let entries = await getEntries();
+    let buildEntries = await Promise.all(
+        entries.map(async entry => {
+            let path = await getFirstAvailable(`src/entries/${entry}`, name);
+            return path ? [path, entry] : undefined;
+        }),
+    );
 
-        if (path)
-            entryPoints.push({in: path, out: entryName});
-
-        return entryPoints;
-    }, []);
+    return buildEntries
+        .filter(item => item !== undefined)
+        .map(([path, entry]) => ({in: path, out: entry}));
 }
 
-function getServerEntryPoints() {
-    return entries.reduce<EntryPoint[]>((entryPoints, entryName) => {
-        let path = getFirstAvailable(`src/entries/${entryName}`, [
-            'server',
-            'ssr',
-            'server/index',
-            'ssr/index',
-        ]);
+async function getClientEntryPoints() {
+    return getEntryPoints([
+        'index',
+        'client',
+        'csr',
+        'client/index',
+        'csr/index',
+    ]);
+}
 
-        if (path)
-            entryPoints.push({in: path, out: entryName});
-
-        return entryPoints;
-    }, []);
+async function getServerEntryPoints() {
+    return getEntryPoints([
+        'server',
+        'ssr',
+        'server/index',
+        'ssr/index',
+    ]);
 }
 
 const commonBuildOptions: Partial<BuildOptions> = {
@@ -75,11 +86,11 @@ const commonBuildOptions: Partial<BuildOptions> = {
 };
 
 async function setup() {
-    await Promise.all([
-        rm('res/-', {force: true, recursive: true}),
-        rm('dist/server', {force: true, recursive: true}),
-        rm('dist/entries', {force: true, recursive: true}),
-    ]);
+    let dirs = ['res/-', 'dist/server', 'dist/entries'];
+
+    await Promise.all(
+        dirs.map(dir => rm(dir, {force: true, recursive: true})),
+    );
 }
 
 async function buildServer() {
@@ -94,8 +105,10 @@ async function buildServer() {
 }
 
 async function buildClient() {
+    let entryPoints = await getClientEntryPoints();
+
     await esbuild.build({
-        entryPoints: getClientEntryPoints(),
+        entryPoints,
         bundle: true,
         splitting: true,
         format: 'esm',
@@ -107,8 +120,10 @@ async function buildClient() {
 }
 
 async function buildServerCSS() {
+    let entryPoints = await getServerEntryPoints()
+
     await esbuild.build({
-        entryPoints: getServerEntryPoints(),
+        entryPoints,
         bundle: true,
         outdir: 'dist/entries',
         platform: 'node',
@@ -116,14 +131,18 @@ async function buildServerCSS() {
         ...commonBuildOptions,
     });
 
-    let files = readdirSync('dist/entries')
+    let files = (await readdir('dist/entries'))
         .filter(name => name.endsWith('.css'));
 
     if (files.length === 0)
         return;
 
-    if (!existsSync('res/-'))
+    try {
+        await access('res/-');
+    }
+    catch {
         await mkdir('res/-');
+    }
 
     await Promise.all(
         files.map(name => copyFile(`dist/entries/${name}`, `res/-/${name}`)),
@@ -147,6 +166,8 @@ function toEntryExportItem(name: string) {
 async function buildEntryIndex() {
     let indexPath = 'src/entries/index.ts';
     let contents = (await readFile(indexPath)).toString();
+
+    let entries = await getEntries();
     let publicEntries = entries.filter(name => !name.startsWith('_'));
 
     let nextContents = '// Generated automatically during the build phase\n' +
