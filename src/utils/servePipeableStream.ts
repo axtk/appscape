@@ -1,7 +1,10 @@
 import {Request, Response} from 'express';
-import type {PipeableStream} from 'react-dom/server';
 import {emitLog} from './emitLog';
 import {getStatusMessage} from './getStatusMessage';
+
+type PipeableStream = {
+    pipe: <Writable extends NodeJS.WritableStream>(destination: Writable) => Writable;
+};
 
 export function servePipeableStream(req: Request, res: Response) {
     return ({pipe}: PipeableStream, error?: unknown) => {
