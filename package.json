@@ -3,14 +3,10 @@
   "version": "0.2.3",
   "description": "",
   "main": "dist/index.js",
-  "bin": {
-    "appscape": "dist/run.js"
-  },
   "scripts": {
-    "build": "npm-run-all clean compile:*",
+    "build": "npm-run-all clean compile",
     "clean": "node -e \"require('node:fs').rmSync('dist', {force: true, recursive: true});\"",
-    "compile:exports": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --external:express",
-    "compile:bin": "esbuild src/scripts/run.ts --bundle --outfile=dist/run.js --platform=node --external:esbuild",
+    "compile": "esbuild index.ts --bundle --outfile=dist/index.js --platform=node --external:express",
     "prepublishOnly": "npm run build",
     "preversion": "npm run build"
   },
@@ -18,7 +14,6 @@
   "license": "ISC",
   "dependencies": {
     "dtfm": "^0.2.11",
-    "esbuild": "^0.24.0",
     "helmet": "^8.0.0"
   },
   "peerDependencies": {
@@ -28,6 +23,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.5",
     "@types/react-dom": "^18.3.1",
+    "esbuild": "^0.24.0",
     "npm-run-all": "^4.1.5"
   }
 }
