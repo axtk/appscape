@@ -1,7 +1,7 @@
 import {STATUS_CODES} from 'node:http';
-import {Request, Response} from 'express';
+import {RenderStatus} from '../types/RenderStatus';
 
-export function renderStatus(req: Request, {statusCode}: Response) {
+export const renderStatus: RenderStatus = (req, {statusCode}) => {
     let id = req.ctx?.id;
     let statusText = `${statusCode} ${STATUS_CODES[statusCode]}`;
     let date = (new Date())

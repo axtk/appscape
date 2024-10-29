@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import EventEmitter from 'node:events';
-import type {Request as ExpressRequest, Response as ExpressResponse} from 'express';
+import type {RenderStatus} from '../types/RenderStatus';
 import type {ReqCtx} from './ReqCtx';
 
 declare global {
@@ -10,11 +10,7 @@ declare global {
         }
         interface Application {
             events?: EventEmitter;
-            renderStatus?: (
-                req: ExpressRequest,
-                res: ExpressResponse,
-                payload?: unknown,
-            ) => unknown;
+            renderStatus?: RenderStatus;
         }
     }
 }

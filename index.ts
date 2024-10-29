@@ -17,6 +17,7 @@ export * from './src/types/LogEventPayload';
 export * from './src/types/LogLevel';
 export * from './src/types/Middleware';
 export * from './src/types/MiddlewareSet';
+export * from './src/types/RenderStatus';
 export * from './src/types/ReqCtx';
 export * from './src/utils/emitLog';
 export * from './src/utils/getFilePath';
