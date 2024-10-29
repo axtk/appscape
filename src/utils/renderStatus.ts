@@ -14,9 +14,8 @@ export const renderStatus: RenderStatus = ({ctx = {}}, {statusCode}) => {
         '<meta name="viewport" content="width=device-width"/>' +
         `<title>${statusText}</title>` +
         `<style${nonce ? ` nonce="${nonce}"` : ''}>` +
-        'main{text-align:center;}</style>' +
-        `<body><main><h1>${statusText}</h1><hr/><p>` +
+        'body{text-align:center;}</style>' +
+        `<body><h1>${statusText}</h1><hr/><p>` +
         (id ? `<code>ID: ${id}</code><br/>` : '') +
-        `<code>${date}</code>` +
-        '</p></main></body></html>';
+        `<code>${date}</code></p></body></html>`;
 }
