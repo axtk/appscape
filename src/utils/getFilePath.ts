@@ -22,17 +22,30 @@ export async function getFilePath({
     let localeSet = new Set(supportedLocales);
     let langSet = new Set(supportedLocales.map(toLanguage));
 
+    let availableNames = [
+        name,
+        ...[...localeSet, ...langSet].map(item => `${name}.${item}`),
+    ];
+
+    let preferredLangNames: string[] | undefined;
+
+    if (lang && (!supportedLocales.length || localeSet.has(lang) || langSet.has(lang)))
+        preferredLangNames = [
+            `${name}.${lang}`,
+            `${name}.${toLanguage(lang)}`,
+        ];
+
     let names = new Set(
-        lang && (!supportedLocales.length || localeSet.has(lang) || langSet.has(lang)) 
-            ? [`${name}.${lang}`, `${name}.${toLanguage(lang)}`, name, `${name}.en`]
-            : [name, ...[...localeSet, ...langSet].map(item => `${name}.${item}`)],
+        preferredLangNames
+            ? [...preferredLangNames, ...availableNames]
+            : availableNames,
     );
 
     let exts = Array.isArray(ext) ? ext : [ext];
 
     for (let item of names) {
-        for (let extItem of exts) {
-            let path = join(cwd, dir, extItem ? `${item}.${extItem}` : item);
+        for (let itemExt of exts) {
+            let path = join(cwd, dir, itemExt ? `${item}.${itemExt}` : item);
 
             try {
                 await access(path);
