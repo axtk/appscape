@@ -6,14 +6,14 @@ import {emitLog} from '../utils/emitLog';
 
 type ZeroTransform = false | null | undefined;
 
-export type HTMLParams = Partial<
+export type FromFileParams = Partial<
     Pick<GetFilePathParams, 'dir' | 'name' | 'ext' | 'supportedLocales'>
 > & {
     transform?: TransformContent | ZeroTransform | (TransformContent | ZeroTransform)[];
     supportedLocales?: string[];
 };
 
-export const fromFile: Controller<HTMLParams | void> = ({
+export const fromFile: Controller<FromFileParams | void> = ({
     dir = '/dat/html',
     name,
     ext = ['html', 'htm'],
