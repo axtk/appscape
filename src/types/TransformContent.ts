@@ -3,5 +3,9 @@ import type {Request, Response} from 'express';
 export type TransformContent = (
     req: Request,
     res: Response,
-    content: string,
+    params: {
+        content: string;
+        path?: string;
+        lang?: string;
+    },
 ) => string | Promise<string>;
