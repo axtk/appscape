@@ -1,27 +1,31 @@
 import {readFile} from 'node:fs/promises';
-import type {Request, Response} from 'express';
 import type {Controller} from '../types/Controller';
-import {getFilePath} from '../utils/getFilePath';
+import type {TransformContent} from '../types/TransformContent';
+import {getFilePath, GetFilePathParams} from '../utils/getFilePath';
 import {emitLog} from '../utils/emitLog';
 
-export type HTMLParams = {
-    dir?: string;
-    name?: string;
-    transform?: (req: Request, res: Response, content: string) => string | Promise<string>;
+export type HTMLParams = Partial<
+    Pick<GetFilePathParams, 'dir' | 'name' | 'ext' | 'supportedLocales'>
+> & {
+    transform?: TransformContent | TransformContent[] | boolean | null | undefined;
     supportedLocales?: string[];
 };
 
 export const html: Controller<HTMLParams | void> = ({
     dir = '/dat/html',
     name,
+    ext = ['html', 'htm'],
     transform,
     supportedLocales,
 } = {}) => {
+    let transformSet = (Array.isArray(transform) ? transform : [transform])
+        .filter(item => typeof item === 'function');
+
     return async (req, res) => {
         let path = await getFilePath({
             name: name ?? req.params.name,
             dir,
-            ext: 'html',
+            ext,
             supportedLocales,
             lang: req.ctx?.lang,
         });
@@ -41,8 +45,8 @@ export const html: Controller<HTMLParams | void> = ({
 
         let content = (await readFile(path)).toString();
 
-        if (transform)
-            content = await transform(req, res, content);
+        for (let transformItem of transformSet)
+            content = await transformItem(req, res, content);
 
         let nonce = req.ctx?.nonce;
 

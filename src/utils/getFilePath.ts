@@ -7,7 +7,7 @@ export type GetFilePathParams = {
     dir?: string;
     lang?: string;
     supportedLocales?: string[];
-    ext?: string;
+    ext?: string | string[];
 };
 
 export async function getFilePath({
@@ -15,7 +15,7 @@ export async function getFilePath({
     dir = '.',
     lang,
     supportedLocales = [],
-    ext = '',
+    ext,
 }: GetFilePathParams) {
     let cwd = process.cwd();
 
@@ -28,13 +28,17 @@ export async function getFilePath({
             : [name, ...[...localeSet, ...langSet].map(item => `${name}.${item}`)],
     );
 
-    for (let item of names) {
-        let path = join(cwd, dir, ext ? `${item}.${ext}` : item);
+    let exts = Array.isArray(ext) ? ext : [ext];
 
-        try {
-            await access(path);
-            return path;
+    for (let item of names) {
+        for (let extItem of exts) {
+            let path = join(cwd, dir, extItem ? `${item}.${extItem}` : item);
+
+            try {
+                await access(path);
+                return path;
+            }
+            catch {}
         }
-        catch {}
     }
 }
