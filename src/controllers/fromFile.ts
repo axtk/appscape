@@ -4,10 +4,12 @@ import type {TransformContent} from '../types/TransformContent';
 import {getFilePath, GetFilePathParams} from '../utils/getFilePath';
 import {emitLog} from '../utils/emitLog';
 
+type ZeroTransform = false | null | undefined;
+
 export type HTMLParams = Partial<
     Pick<GetFilePathParams, 'dir' | 'name' | 'ext' | 'supportedLocales'>
 > & {
-    transform?: TransformContent | TransformContent[] | boolean | null | undefined;
+    transform?: TransformContent | ZeroTransform | (TransformContent | ZeroTransform)[];
     supportedLocales?: string[];
 };
 
