@@ -6,6 +6,5 @@ export type TransformContent = (
     params: {
         content: string;
         path?: string;
-        lang?: string;
     },
 ) => string | Promise<string>;

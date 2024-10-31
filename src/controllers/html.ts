@@ -22,14 +22,12 @@ export const html: Controller<HTMLParams | void> = ({
         .filter(item => typeof item === 'function');
 
     return async (req, res) => {
-        let lang = req.ctx?.lang;
-
         let path = await getFilePath({
             name: name ?? req.params.name,
             dir,
             ext,
             supportedLocales,
-            lang,
+            lang: req.ctx?.lang,
         });
 
         emitLog(req.app, `Path: ${path && `"${path}"`}`, {
@@ -51,7 +49,6 @@ export const html: Controller<HTMLParams | void> = ({
             content = await transformItem(req, res, {
                 content,
                 path,
-                lang,
             });
 
         let nonce = req.ctx?.nonce;
