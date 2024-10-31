@@ -19,6 +19,7 @@ export * from './src/types/Middleware';
 export * from './src/types/MiddlewareSet';
 export * from './src/types/RenderStatus';
 export * from './src/types/ReqCtx';
+export * from './src/types/TransformContent';
 export * from './src/utils/emitLog';
 export * from './src/utils/getFilePath';
 export * from './src/utils/getStatusMessage';
