@@ -1,5 +1,4 @@
 import express from 'express';
-import {join} from 'node:path';
 import {start} from '../middleware/start';
 import {requestEvents} from '../middleware/requestEvents';
 import {log} from '../lib/logger/log';
@@ -25,7 +24,7 @@ export function setup() {
     app.disable('x-powered-by');
     app.use(start());
     app.use(requestEvents());
-    app.use(express.static(join(process.cwd(), './res')));
+    app.use(express.static('res'));
 
     app.listen(port, host, () => {
         let location = `http://${host}:${port}/`;
