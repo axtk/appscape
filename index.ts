@@ -1,4 +1,4 @@
-export * from './src/controllers/html';
+export * from './src/controllers/fromFile';
 export * from './src/controllers/unhandledError';
 export * from './src/controllers/unhandledRoute';
 export * from './src/lib/lang/getEffectiveLocale';

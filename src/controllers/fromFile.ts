@@ -11,7 +11,7 @@ export type HTMLParams = Partial<
     supportedLocales?: string[];
 };
 
-export const html: Controller<HTMLParams | void> = ({
+export const fromFile: Controller<HTMLParams | void> = ({
     dir = '/dat/html',
     name,
     ext = ['html', 'htm'],
