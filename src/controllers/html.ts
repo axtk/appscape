@@ -49,6 +49,6 @@ export const html: Controller<HTMLParams | void> = ({
         if (nonce)
             content = content.replace(/\{\{nonce\}\}/g, nonce);
 
-        res.type('text/html').send(content);
+        res.send(content);
     };
 };
