@@ -4,10 +4,11 @@ import {requestEvents} from '../middleware/requestEvents';
 import {log} from '../lib/logger/log';
 import {LogEventPayload} from '../types/LogEventPayload';
 import {init} from './init';
+import {initStatic} from './initStatic';
 import {emitLog} from './emitLog';
 import {renderStatus} from './renderStatus';
 
-export function setup() {
+export async function setup() {
     let app = init(express());
 
     let host = process.env.APP_HOST || 'localhost';
@@ -24,7 +25,8 @@ export function setup() {
     app.disable('x-powered-by');
     app.use(start());
     app.use(requestEvents());
-    app.use(express.static('public'));
+
+    await initStatic(app);
 
     app.listen(port, host, () => {
         let location = `http://${host}:${port}/`;
