@@ -31,7 +31,7 @@ export function setup() {
         let location = `http://${host}:${port}/`;
         let env = `NODE_ENV=${process.env.NODE_ENV}`;
 
-        emitLog(app, `Server running on '${location}' (${env})`);
+        emitLog(app, `Server running at '${location}' (${env})`);
     });
 
     return app;
