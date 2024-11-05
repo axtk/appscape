@@ -24,7 +24,7 @@ export function setup() {
     app.disable('x-powered-by');
     app.use(start());
     app.use(requestEvents());
-    app.use(express.static('res'));
+    app.use(express.static('public'));
 
     app.listen(port, host, () => {
         let location = `http://${host}:${port}/`;
