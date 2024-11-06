@@ -11,6 +11,8 @@ export * from './src/middleware/requestEvents';
 export * from './src/middleware/start';
 export * from './src/middleware/trimQueryParams';
 export * from './src/types/Controller';
+export * from './src/types/CSPDirective';
+export * from './src/types/DynamicCSPDirective';
 export * from './src/types/ErrorController';
 export * from './src/types/LogEventPayload';
 export * from './src/types/LogLevel';
