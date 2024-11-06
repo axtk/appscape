@@ -13,8 +13,7 @@
   "author": "axtk",
   "license": "ISC",
   "dependencies": {
-    "dtfm": "^0.2.11",
-    "helmet": "^8.0.0"
+    "dtfm": "^0.2.11"
   },
   "peerDependencies": {
     "express": "*"
