@@ -1,6 +1,6 @@
+import {IncomingMessage} from 'node:http';
 import type {Request} from 'express';
-import type {DynamicCSPDirective} from '../types/DynamicCSPDirective';
 
-export const cspNonce: DynamicCSPDirective = req => {
+export const cspNonce = (req: IncomingMessage) => {
     return `'nonce-${(req as Request).ctx?.nonce}'`;
 }
