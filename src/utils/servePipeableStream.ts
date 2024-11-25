@@ -7,7 +7,7 @@ type PipeableStream = {
 };
 
 export function servePipeableStream(req: Request, res: Response) {
-    return ({pipe}: PipeableStream, error?: unknown) => {
+    return async ({pipe}: PipeableStream, error?: unknown) => {
         let statusCode = error ? 500 : 200;
 
         emitLog(req.app, getStatusMessage('Stream', statusCode), {
@@ -20,7 +20,7 @@ export function servePipeableStream(req: Request, res: Response) {
         res.status(statusCode);
 
         if (statusCode >= 400) {
-            res.send(req.app.renderStatus?.(req, res));
+            res.send(await req.app.renderStatus?.(req, res));
             return;
         }
 

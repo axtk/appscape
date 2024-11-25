@@ -6,4 +6,4 @@ export type RenderStatus = (
     req: Request,
     res: Response,
     payload?: unknown,
-) => SendParam | Promise<SendParam>;
+) => Promise<SendParam>;

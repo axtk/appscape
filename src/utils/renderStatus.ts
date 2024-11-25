@@ -1,9 +1,9 @@
 import {STATUS_CODES} from 'node:http';
 import {RenderStatus} from '../types/RenderStatus';
 
-export const renderStatus: RenderStatus = ({ctx = {}}, {statusCode}) => {
-    let {id, nonce} = ctx;
-    let statusText = `${statusCode} ${STATUS_CODES[statusCode]}`;
+export const renderStatus: RenderStatus = async (req, res) => {
+    let {id, nonce} = req.ctx;
+    let statusText = `${res.statusCode} ${STATUS_CODES[res.statusCode]}`;
     let date = (new Date())
         .toISOString()
         .replace(/T/, ' ')

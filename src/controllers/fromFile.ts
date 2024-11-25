@@ -39,7 +39,7 @@ export const fromFile: Controller<FromFileParams | void> = ({
 
         if (!path) {
             res.status(404).send(
-                req.app.renderStatus?.(req, res),
+                await req.app.renderStatus?.(req, res),
             );
 
             return;

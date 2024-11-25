@@ -1,7 +1,7 @@
 import type {Controller} from '../types/Controller';
 import {emitLog} from '../utils/emitLog';
 
-export const unhandledRoute: Controller = () => (req, res) => {
+export const unhandledRoute: Controller = () => async (req, res) => {
     emitLog(req.app, 'Unhandled route', {
         level: 'debug',
         req,
@@ -9,6 +9,6 @@ export const unhandledRoute: Controller = () => (req, res) => {
     });
 
     res.status(404).send(
-        req.app.renderStatus?.(req, res, 'unhandled_route'),
+        await req.app.renderStatus?.(req, res, 'unhandled_route'),
     );
 };
