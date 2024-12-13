@@ -6,42 +6,42 @@ import {emitLog} from '../utils/emitLog';
 
 type ZeroTransform = false | null | undefined;
 
-export type FromFileParams = Partial<
+export type DirParams = Partial<
     Pick<GetFilePathParams, 'name' | 'ext' | 'supportedLocales'>
 > & {
-    dir: string;
+    path: string;
     transform?: TransformContent | ZeroTransform | (TransformContent | ZeroTransform)[];
     supportedLocales?: string[];
 };
 
-export const fromFile: Controller<FromFileParams> = ({
-    dir,
+export const dir: Controller<DirParams> = ({
+    path,
     name,
     ext = ['html', 'htm'],
     transform,
     supportedLocales,
 }) => {
-    if (typeof dir !== 'string')
-        throw new Error(`'dir' is not a string`);
+    if (typeof path !== 'string')
+        throw new Error(`'path' is not a string`);
 
     let transformSet = (Array.isArray(transform) ? transform : [transform])
         .filter(item => typeof item === 'function');
 
     return async (req, res) => {
-        let path = await getFilePath({
+        let filePath = await getFilePath({
             name: name ?? req.params.name,
-            dir,
+            dir: path,
             ext,
             supportedLocales,
             lang: req.ctx?.lang,
         });
 
-        emitLog(req.app, `Path: ${path && `"${path}"`}`, {
+        emitLog(req.app, `Path: ${JSON.stringify(filePath)}`, {
             req,
             res,
         });
 
-        if (!path) {
+        if (!filePath) {
             res.status(404).send(
                 await req.app.renderStatus?.(req, res),
             );
@@ -49,12 +49,12 @@ export const fromFile: Controller<FromFileParams> = ({
             return;
         }
 
-        let content = (await readFile(path)).toString();
+        let content = (await readFile(filePath)).toString();
 
         for (let transformItem of transformSet)
             content = await transformItem(req, res, {
                 content,
-                path,
+                path: filePath,
             });
 
         let nonce = req.ctx?.nonce;
