@@ -14,6 +14,16 @@ export type DirParams = Partial<
     supportedLocales?: string[];
 };
 
+/**
+ * Serves files from the specified directory path in a locale-aware
+ * fashion after applying optional transforms.
+ *
+ * A file ending with `.<lang>.<ext>` is picked first if the `<lang>`
+ * part matches `req.ctx.lang`. If the `supportedLocales` array is
+ * provided, the `*.<lang>.<ext>` file is picked only if the given
+ * array contains `req.ctx.lang`. Otherwise, a file without the locale
+ * in its path (`*.<ext>`) is picked.
+ */
 export const dir: Controller<DirParams> = ({
     path,
     name,
