@@ -7,19 +7,23 @@ import {emitLog} from '../utils/emitLog';
 type ZeroTransform = false | null | undefined;
 
 export type FromFileParams = Partial<
-    Pick<GetFilePathParams, 'dir' | 'name' | 'ext' | 'supportedLocales'>
+    Pick<GetFilePathParams, 'name' | 'ext' | 'supportedLocales'>
 > & {
+    dir: string;
     transform?: TransformContent | ZeroTransform | (TransformContent | ZeroTransform)[];
     supportedLocales?: string[];
 };
 
-export const fromFile: Controller<FromFileParams | void> = ({
-    dir = '/dat/html',
+export const fromFile: Controller<FromFileParams> = ({
+    dir,
     name,
     ext = ['html', 'htm'],
     transform,
     supportedLocales,
-} = {}) => {
+}) => {
+    if (typeof dir !== 'string')
+        throw new Error(`'dir' is not a string`);
+
     let transformSet = (Array.isArray(transform) ? transform : [transform])
         .filter(item => typeof item === 'function');
 
