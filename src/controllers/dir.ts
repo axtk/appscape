@@ -1,4 +1,5 @@
 import {readFile} from 'node:fs/promises';
+import {basename, extname} from 'node:path';
 import type {Controller} from '../types/Controller';
 import type {TransformContent} from '../types/TransformContent';
 import {getFilePath, GetFilePathParams} from '../utils/getFilePath';
@@ -65,6 +66,7 @@ export const dir: Controller<DirParams> = ({
             content = await transformItem(req, res, {
                 content,
                 path: filePath,
+                name: basename(filePath, extname(filePath)),
             });
 
         let nonce = req.ctx?.nonce;
