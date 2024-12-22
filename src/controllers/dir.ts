@@ -11,6 +11,7 @@ export type DirParams = Partial<
     Pick<GetFilePathParams, 'name' | 'ext' | 'supportedLocales'>
 > & {
     path: string;
+    index?: string;
     transform?: TransformContent | ZeroTransform | (TransformContent | ZeroTransform)[];
     supportedLocales?: string[];
 };
@@ -28,6 +29,7 @@ export type DirParams = Partial<
 export const dir: Controller<DirParams> = ({
     path,
     name,
+    index,
     ext = ['html', 'htm'],
     transform,
     supportedLocales,
@@ -39,8 +41,23 @@ export const dir: Controller<DirParams> = ({
         .filter(item => typeof item === 'function');
 
     return async (req, res) => {
+        let fileName = (name ?? req.params.name) || index;
+
+        emitLog(req.app, `Name: ${JSON.stringify(fileName)}`, {
+            req,
+            res,
+        });
+
+        if (!fileName) {
+            res.status(404).send(
+                await req.app.renderStatus?.(req, res),
+            );
+
+            return;
+        }
+
         let filePath = await getFilePath({
-            name: name ?? req.params.name,
+            name: fileName,
             dir: path,
             ext,
             supportedLocales,
