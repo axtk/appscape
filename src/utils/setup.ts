@@ -1,17 +1,29 @@
+import EventEmitter from 'node:events';
 import express from 'express';
 import {start} from '../middleware/start';
 import {requestEvents} from '../middleware/requestEvents';
 import {log} from '../lib/logger/log';
 import {LogEventPayload} from '../types/LogEventPayload';
-import {init} from './init';
 import {emitLog} from './emitLog';
 import {renderStatus} from './renderStatus';
 
-export function setup() {
-    let app = init(express());
+export function setup(init?: () => void | Promise<void>) {
+    let app = express();
+
+    if (!app.events)
+        app.events = new EventEmitter();
 
     let host = process.env.APP_HOST || 'localhost';
     let port = Number(process.env.APP_PORT) || 80;
+
+    let listen = () => {
+        app.listen(port, host, () => {
+            let location = `http://${host}:${port}/`;
+            let env = `NODE_ENV=${process.env.NODE_ENV}`;
+
+            emitLog(app, `Server running at '${location}' (${env})`);
+        });
+    };
 
     if (process.env.NODE_ENV === 'development')
         app.events?.on('log', ({message, ...payload}: LogEventPayload) => {
@@ -27,12 +39,11 @@ export function setup() {
 
     app.use('/', express.static('public'));
 
-    app.listen(port, host, () => {
-        let location = `http://${host}:${port}/`;
-        let env = `NODE_ENV=${process.env.NODE_ENV}`;
+    let initOutput = typeof init === 'function' ? init() : null;
 
-        emitLog(app, `Server running at '${location}' (${env})`);
-    });
+    if (initOutput instanceof Promise)
+        initOutput.then(listen);
+    else listen();
 
     return app;
 }
